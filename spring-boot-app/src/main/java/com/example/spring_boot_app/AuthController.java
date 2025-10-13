@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.io.IOException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 @RestController
@@ -53,6 +55,30 @@ public class AuthController {
                 ? ResponseEntity.ok(result)
                 : ResponseEntity.badRequest().body(result);
     }
+
+    /**
+     * ログアウトを行います
+     * @param authorizationHeader Authorizationヘッダ
+     * @return 実行結果
+     */
+    @PostMapping("/logout")
+   public ResponseEntity<Map<String, Object>> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        supabaseAuthService.logout(authorizationHeader.substring(7));
+        return ResponseEntity.ok(Map.of("message", "Logout successful."));
+    }
+
+    /**
+     * Github認証にリダイレクトします
+     * @param response HTTPレスポンス
+     * @param uriBuilder URI構築
+     */
+    @GetMapping("/oauth2/github")
+    public void redirectToGitHub(HttpServletResponse response, UriComponentsBuilder uriBuilder) throws IOException {
+        String redirectTo = uriBuilder.replacePath("/").build().toUriString();
+        String supabaseAuthGitHubUrl = supabaseAuthService.getGitHubSignInUrl(redirectTo);
+        response.sendRedirect(supabaseAuthGitHubUrl);
+    }
+
 
 
 }

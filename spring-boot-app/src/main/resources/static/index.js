@@ -49,4 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- Github認証 ---
+    document.getElementById('github-login-btn').onclick = async () => {
+        window.location.href = '/api/auth/oauth2/github';
+    };
 });
